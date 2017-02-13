@@ -22,6 +22,7 @@ struct Bunny {
 void AddBunnies();
 void Update();
 void Render();
+double random();
 
 int indexArray = -1; 
 struct Bunny bunnies[maxArray];
@@ -56,7 +57,9 @@ int main()
     while (!WindowShouldClose())
     {             
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-            AddBunnies();
+            AddBunnies(100);
+        else if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON))
+            AddBunnies(10);
         
         Update();                
 
@@ -75,20 +78,20 @@ int main()
     return 0;
 }
 
-void AddBunnies()
+void AddBunnies(int total)
 {
     if (indexArray == (maxArray - 1))
         return;
     
-    for (int i = 0; i < 1000; i++)
+    for (int i = 0; i < total; i++)
     {
         if ((indexArray + 1) < maxArray)
         {
             struct Bunny bunny;
             bunny.x = 0;
             bunny.y = 0;
-            bunny.speedX = rand() % 8;
-            bunny.speedY = rand() % 5 - 2.5;
+            bunny.speedX = random() * 8;
+            bunny.speedY = random() * 5 - 2.5;
             
             indexArray++;
             bunnies[indexArray] = bunny;
@@ -122,8 +125,8 @@ void Update()
             bunnies[i].speedY *= -0.8;
             bunnies[i].y = maxY;
             
-            if ((rand() % 1) > 0.5)
-                bunnies[i].speedY -= 3 + rand() % 4;
+            if (random() > 0.5)
+                bunnies[i].speedY -= 3 + random() * 4;
         }
         else if (bunnies[i].y < minY) 
         {
@@ -140,4 +143,15 @@ void Render()
     
     sprintf(fpsMsg, "bunnies: %d fps: %.0f", (indexArray + 1), GetFPS());
     DrawText(fpsMsg, 10, 10, 20, WHITE);
+}
+
+// https://github.com/HaxeFoundation/hxcpp/blob/master/src/hx/StdLibs.cpp#L190
+double rand_scale = 1.0 / (1<<16) / (1<<16);
+double random()
+{
+   unsigned int lo = rand() & 0xfff;
+   unsigned int mid = rand() & 0xfff;
+   unsigned int hi = rand() & 0xff;
+   double result = (lo | (mid<<12) | (hi<<24) ) * rand_scale;
+   return result;
 }
